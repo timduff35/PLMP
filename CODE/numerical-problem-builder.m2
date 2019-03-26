@@ -5,6 +5,7 @@ needsPackage "MonodromySolver"
 -- GLOBALS
 FF = CC
 kTol=1e-4
+COFACTOR = true
 
 nLines = D#0 + D#1
 depLines = flatten((last D)/(i -> drop(i,2)))
@@ -162,23 +163,25 @@ filterRankCoP = (p,x) -> (
 --setRandomSeed 31452345342
 (p, x) = fabricatepx CC
 norm evaluate(F,x||p) -- ~0?
-if JACOBIAN then (
+if (instance(Jpivots, Symbol) and JACOBIAN) then (
     -- better to have this precomputed
     << "differentiating" << endl;
     elapsedTime J = diff(varMatrix,F);
     elapsedTime J0 = matrix evaluate(J,x||p);
     elapsedTime Jpivots = rowSelector(J0,Threshold=>5e-5);
     elapsedTime S = first SVD J0^Jpivots;
-    elapsedTime F'= F^Jpivots;
-    << " preparing homotopy " << endl;
-    elapsedTime PH = parametricSegmentHomotopy(F', cameraVars, dataParams);
     )
+
+elapsedTime F'= F^Jpivots;
+<< " preparing homotopy " << endl;
+elapsedTime PH = parametricSegmentHomotopy(F', cameraVars, dataParams);
+
 
 if RERUNMONODROMY then elapsedTime (V,np)= monodromySolve(PH, 
     point p, {point x},Verbose=>true,
     FilterCondition=>filterRank,
-    Randomizer=>gammify, EdgesSaturated=>SATURATE);
-writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
+    Randomizer=>gammify);
+if (not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
 stdio << #(points V.PartialSols) << " solutions found!" << endl;
 
 -- clear symbols for next run

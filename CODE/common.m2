@@ -99,7 +99,7 @@ readStartSys = filename -> (
     l := separate("\n", get filename);
     p0 := value l#1;
     sols := for i from 3 to #l-2 list value l#i;
-    (p0, sols)
+    (transpose matrix p0, sols/matrix/transpose)
     )
 
 -- for testing the contents of a start system file
@@ -286,16 +286,16 @@ fabricatePair = (D, FF, nvars) -> (
 	) 
     )
 
--- fabricates input of the form (parameter, solution), given the output of fabricatePair
-fabricatepx = FF -> (
-    (P, L,projs) := fabricatePair(D, FF, nvars); -- these variable names are confusing
-    x := transpose matrix{P};
+-- functions which fabricate input of the form (parameter, solution)
+-- notation for supp materials is (y,c)---previous notation is (p,x)
+encodey = (P,L,projs,FF) -> (
+    c := transpose matrix{P};
     allLines := L/last;
-    pIndLineMatrix := cfold(
+    yIndLineMatrix := cfold(
 	    allLines/(m->m^(toList indepLines))
 	    );
-    pInd := matrix(pIndLineMatrix,product toList size pIndLineMatrix,1);
-    pDep := if (#depLines == 0) then random(CC^0,CC^1) else 
+    yInd := matrix(yIndLineMatrix,product toList size yIndLineMatrix,1);
+    yDep := if (#depLines == 0) then random(CC^0,CC^1) else 
     rfold(
 	depLines/(l-> (
 	    	lineInds := first select(1,last D,i->member(l,i));
@@ -308,13 +308,23 @@ fabricatepx = FF -> (
 		)
     	    )
 	);
-    ptChart := randKernel(transpose(x^{4*(m-1)..(4*(m-1)+3*(m-1)-1)}||matrix{{1_CC}}), FF);
-    pqChart := rfold(
-	for i from 0 to m-2 list randKernel(transpose(x^{4*i..4*i+3}||matrix{{1_CC}}), FF)
-	);
-    p := pInd||pDep||ptChart||pqChart;
-    (p, x)    
+    ytChart := sub(randKernel(transpose(c^{4*(m-1)..(4*(m-1)+3*(m-1)-1)}||matrix{{1_CC}}), FF),CC);
+    yqChart := sub(rfold(
+	for i from 0 to m-2 list randKernel(transpose(c^{4*i..4*i+3}||matrix{{1_CC}}), FF)
+	),CC);
+    yInd||yDep||ytChart||yqChart
+    )
+
+encodeyc = (P, L, projs,FF) -> (
+    c := transpose matrix{P};
+    y := encodey(P, L, projs,FF);
+    (y, c)    
     )    
+
+fabricateyc = FF -> (
+    (P, L, projs) := fabricatePair(D, FF, nvars); -- these variable names are confusing
+    encodeyc(P, L, projs,FF)
+    )
 
 -- convenience functions for minors
 minors (GateMatrix, ZZ, Sequence, Boolean) := o ->  (M, k, S, laplace) -> (

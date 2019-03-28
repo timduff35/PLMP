@@ -161,7 +161,7 @@ filterRankCoP = (p,x) -> (
 
 
 --setRandomSeed 31452345342
-(p, x) = fabricatepx CC
+(p, x) = fabricateyc CC
 norm evaluate(F,x||p) -- ~0?
 if (instance(Jpivots, Symbol) and JACOBIAN) then (
     -- better to have this precomputed
@@ -181,9 +181,10 @@ if RERUNMONODROMY then elapsedTime (V,np)= monodromySolve(PH,
     point p, {point x},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify);
-if (not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
-stdio << #(points V.PartialSols) << " solutions found!" << endl;
-
+if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
+if RERUNMONODROMY then (
+    stdio << #(points V.PartialSols) << " solutions found!" << endl;
+    )
 -- clear symbols for next run
 w=symbol w
 x=symbol x

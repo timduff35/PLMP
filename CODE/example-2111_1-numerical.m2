@@ -24,17 +24,22 @@ netList translations23
 netList L
 
 -- encode fabricated data as (parameter, solution) pair
-(yTarget, cTarget) = encodeyc(cTargetList, PLTarget, CTarget, RR);
+(yTarget, cTarget) = encodeyc(cTargetList, PLTarget, CTarget, RR)
 
-PH' = specialize(PH,yStart||yTarget)
+--homotopy continuation
+PH' = specialize(PH,yStart||yTarget);
 cTargets = trackHomotopy(PH', cStarts);
-cTargets12 = cTargets/(c-> (
-	R2params = take(c.Coordinates,{0,3});
-	Q2R((1/norm(2,R2params)*R2params,Normalized=>true)
-	)
-    )
-)	
-cTargets12/(R->norm(R-rotations#0))
-min oo
 
-rotations
+--filtering
+cTargets2 = cTargets/(c-> (
+	R2params = take(c.Coordinates,{0,3});
+	Q2R(R2params,Normalized=>true)
+	)
+    );	
+i=minPosition(
+    cTargets2/(R2->
+	norm(R2-rotations23#0)));
+y=(cTargets#i).Coordinates;
+Q2R(take(y,{0,3}),Normalized=>true)
+Q2R(take(y,{4,7}),Normalized=>true)
+transpose matrix {take(y,{8,13})}

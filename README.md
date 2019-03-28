@@ -5,6 +5,9 @@ To get started, execute the commented examples below in Macaulay2. (See caveats.
 
 ## Files in CODE/
 * Examples with detailed commentary:
+  + example-jacobian_1.m2
+  + example-2111_1-numerical.m2
+  + example-2111_1-unrolled.m2  
   + example-2111_1.m2  
 * Numerical degree computations: 
   + degree-5cameras.m2	

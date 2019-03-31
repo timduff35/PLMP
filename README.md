@@ -5,7 +5,7 @@ To get started, execute the commented examples below in Macaulay2. (See caveats.
 
 ## Files in CODE/
 * Suplementary material exposition:
-  + [supplementary.pdf]
+  + supplementary.pdf
 * Examples with detailed commentary:
   + example-jacobian_1.m2
   + example-2111_1-numerical.m2

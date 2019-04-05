@@ -1,7 +1,7 @@
 # PLMP -- point-line minimal problems
 This repository hosts code for checking minimality and computing algebraic degrees of relative pose estimation problems in computer vision involving complete correspondences of points, lines, and their incidence relations across some number of views. It was used to classify all [PLMPs in complete multi-view visibility](https://arxiv.org/abs/1903.10008). 
 
-To get started, execute the commented examples below in Macaulay2. (See caveats.)
+To get started, read through and execture the Macaulay2-based examples appearing in [this supplement.](./supplementary.pdf)  Macaulay2. (See caveats.)
 
 ## Files in CODE/
 * Suplementary material exposition:

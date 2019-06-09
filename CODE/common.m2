@@ -8,6 +8,7 @@ debug needsPackage "Core"
 size GateMatrix := M -> (numrows M, numcols M)
 size Matrix := M -> (numrows M, numcols M)
 
+-*
 -- evaluate a gateMatrix G at a matrix x
 -- don't use this a lot...
 evaluate (GateMatrix, Matrix) := (G, x) -> (
@@ -16,6 +17,7 @@ evaluate (GateMatrix, Matrix) := (G, x) -> (
     evaluate(E',mutableMatrix(x),M);
     matrix M
     )
+*-
 
 --random diagonal matrix
 randDiag = n -> diagonalMatrix for i from 1 to n list random CC
@@ -318,7 +320,7 @@ encodey = (P,L,projs,FF) -> (
 encodeyc = (P, L, projs,FF) -> (
     c := transpose matrix{P};
     y := encodey(P, L, projs,FF);
-    (y, c)    
+    (point y, point c)    
     )    
 
 fabricateyc = FF -> (

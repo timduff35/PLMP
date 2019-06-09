@@ -75,7 +75,7 @@ T = {gateMatrix{{0},{0},{0}}} | for i from 2 to m list (w_i^2+x_i^2+y_i^2+z_i^2)
 pMatrices = apply(R,T,(r,t)->r|t)
 
 -- camera evaluator used for fabrication routine
-C = pMatrices/(P->makeEvaluator(P, varMatrix))
+C = pMatrices/(P->makeSLProgram(varMatrix, P))
 
 --row vectors giving implicit equations of 2d visibleLines
 -- better variable name?
@@ -128,14 +128,14 @@ filterEval = (p,x) -> (
 -- matrix evaluators: used for rank filter
 PE=apply(#CoPmatrices,i->(
 	G := CoPmatrices#i;
-	(makeEvaluator(G, inputMatrix),
+	(makeSLProgram(inputMatrix,G),
 	mutableMatrix(FF,numrows G,numcols G)
 	)
     )
 )
 LE=apply(#CoLmatrices,i->(
 	G := CoLmatrices#i;
-	(makeEvaluator(G, inputMatrix),
+	(makeSLProgram(inputMatrix,G),
 	mutableMatrix(FF,numrows G,numcols G)
 	)
     )
@@ -161,24 +161,29 @@ filterRankCoP = (p,x) -> (
 
 
 --setRandomSeed 31452345342
-(p, x) = fabricateyc CC
-norm evaluate(F,x||p) -- ~0?
+(y, c) = fabricateyc CC
+varMatrix = gateMatrix{cameraVars}
+paramMatrix = gateMatrix{dataParams}
+masterGS = gateSystem(paramMatrix, varMatrix, F);
+norm evaluate(masterGS,y,c) -- ~0?
+
+-- this block is very hacky!
 if (instance(Jpivots, Symbol) and JACOBIAN) then (
     -- better to have this precomputed
     << "differentiating" << endl;
     elapsedTime J = diff(varMatrix,F);
-    elapsedTime J0 = matrix evaluate(J,x||p);
+    elapsedTime JGS = gateSystem(paramMatrix, varMatrix, transpose matrix{flatten entries transpose J});
+    elapsedTime JSLP = makeSLProgram(paramMatrix|varMatrix,J);
+    elapsedTime J0 = matrix(evaluate(JSLP,matrix y|matrix c),14,14);
     elapsedTime Jpivots = rowSelector(J0,Threshold=>5e-5);
     elapsedTime S = first SVD J0^Jpivots;
     )
 
-elapsedTime F'= F^Jpivots;
-<< " preparing homotopy " << endl;
-elapsedTime PH = parametricSegmentHomotopy(F', cameraVars, dataParams);
+elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
 
-
-if RERUNMONODROMY then elapsedTime (V,np)= monodromySolve(PH, 
-    point p, {point x},Verbose=>true,
+if RERUNMONODROMY then elapsedTime (V,np)= 
+monodromySolve(GS, 
+    y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify);
 if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
@@ -201,7 +206,7 @@ restart
 --m=6
 --D = (3,1,{{2,3}})
 
-m=5
+--m=5
 --D = (3,1,{{1,2},{2,3}}) -- deg = 11306 ?
 --D = (4,0,{{0,1,2},{0,3}}) -- deg = 26240
 --D = (4,1,{{0,1,2,3},{0,4}}) -- deg = 11008 -- 24077.1 seconds elapsed (AL desktop) 
@@ -238,7 +243,7 @@ m=5
 -- D=(4,2,{{0,1,2,3},{0,4},{0,5}})-- 144, monodromy works
 --D=(1,5,{{0,1},{0,2},{0,3},{4,5}})--64, monodromy works
 
---m = 2
+m = 2
 --D = (5,0,{{0,1},{1,2},{2,3},{3,4},{4,0}}) -- 20, monodromy works
 --D = (4,1,{{0,1},{1,2},{2,3},{3,0},{0,4}}) -- monodromy gets 16 -- saturation?
 --D=(2,4,{{0,1},{0,2},{0,3},{1,4},{1,5}}) -- monodromy gets 12 -- saturation?
@@ -247,7 +252,9 @@ m=5
 
 COFACTOR = true
 JACOBIAN = true
-needs "degree.m2"
+RERUNMONODROMY = true
+needs "numerical-problem-builder.m2"
+
 
 
 Jpivots

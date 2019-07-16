@@ -4,8 +4,7 @@ needsPackage "MonodromySolver"
 
 -- GLOBALS
 FF = CC
-kTol=1e-4
-COFACTOR = true
+kTol=1e-5
 
 nLines = D#0 + D#1
 depLines = flatten((last D)/(i -> drop(i,2)))
@@ -172,9 +171,10 @@ if (instance(Jpivots, Symbol) and JACOBIAN) then (
     -- better to have this precomputed
     << "differentiating" << endl;
     elapsedTime J = diff(varMatrix,F);
+    (M,N) = size J;
     elapsedTime JGS = gateSystem(paramMatrix, varMatrix, transpose matrix{flatten entries transpose J});
     elapsedTime JSLP = makeSLProgram(paramMatrix|varMatrix,J);
-    elapsedTime J0 = matrix(evaluate(JSLP,matrix y|matrix c),14,14);
+    elapsedTime J0 = matrix(evaluate(JSLP,matrix y|matrix c),M,N);
     elapsedTime Jpivots = rowSelector(J0,Threshold=>5e-5);
     elapsedTime S = first SVD J0^Jpivots;
     )
@@ -220,8 +220,8 @@ restart
 --D=(3,1,{{0,1},{0,2},{0,3}}) -- degree = 544??
 --D =(3,2,{{0,1,2},{0,3},{0,4}}) -- degree = 544??
 
---m=3
---D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
+m=3
+D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D = (6,0,{{0,1,2,3,4},{0,5}}) -- 240 -- D.C.-ish, monodromy works
 --D = (4,1,{{0,1},{0,4}}) -- 264 -- ANGUILLA, monodromy works
 --D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
@@ -243,7 +243,7 @@ restart
 -- D=(4,2,{{0,1,2,3},{0,4},{0,5}})-- 144, monodromy works
 --D=(1,5,{{0,1},{0,2},{0,3},{4,5}})--64, monodromy works
 
-m = 2
+--m = 2
 --D = (5,0,{{0,1},{1,2},{2,3},{3,4},{4,0}}) -- 20, monodromy works
 --D = (4,1,{{0,1},{1,2},{2,3},{3,0},{0,4}}) -- monodromy gets 16 -- saturation?
 --D=(2,4,{{0,1},{0,2},{0,3},{1,4},{1,5}}) -- monodromy gets 12 -- saturation?

@@ -1,14 +1,12 @@
-m = 5; -- number of cameras
-DIR = "./numerical/degree-5cameras/";
+m = 6; -- number of cameras
+DIR = "./numerical/degree-6cameras/";
 COFACTOR = true;
 JACOBIAN = true;
 RERUNMONODROMY = true;
 
 -- we should also stash working pivots to avoid recomputing Jacobian....
 LIST = {    
-(4,1,{{0,1,2,3},{0,4}}) => "2003_3",-- deg = 11008
-(3,1,{{1,2},{2,3}}) => "2011_1", -- deg = 11306 (not divisible by 8)
-(4,0,{{0,1,2},{0,3}}) => "2003_2" -- deg = 26240
+    (3,1,{{2,3}}) => "1021_1", -- degree > 450k
     }
 
 for P in LIST do (
@@ -24,4 +22,4 @@ for P in LIST do (
 
 end--
 restart
-needs "degree-5cameras.m2"
+needs "degree-6cameras.m2"

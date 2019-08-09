@@ -186,8 +186,8 @@ if RERUNMONODROMY then elapsedTime (V,np)=
 monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
-    Randomizer=>null,NumberOfNodes=>5);
-if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
+    Randomizer=>null);
+--if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
 if RERUNMONODROMY then (
     stdio << #(points V.PartialSols) << " solutions found!" << endl;
     )
@@ -282,7 +282,7 @@ elapsedTime (V,np)= monodromySolve(PH,
     FilterCondition=>filterRank,
     Randomizer=>gammify)
 
-writeStartSys(V.BasePoint, points V.PartialSols, Filename => "./numerical/degree-4cameras/3001_1.txt")
+--writeStartSys(V.BasePoint, points V.PartialSols, Filename => "./numerical/degree-4cameras/3001_1.txt")
 -- ,NumberOfNodes=>4,NumberOfRepeats=>15) -- insanity check. for small examples!
 
 

@@ -201,6 +201,7 @@ l=symbol l
 a=symbol a
 ct=symbol ct
 cq=symbol cq
+Jpivots = symbol Jpivots
 end--
 
 restart

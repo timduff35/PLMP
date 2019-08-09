@@ -24,4 +24,7 @@ for P in LIST do (
 
 end--
 restart
+needsPackage "NumericalAlgebraicGeometry"
+setDefault(tStepMin=>1e-7)
+setDefault(maxCorrSteps=>2)
 needs "degree-5cameras.m2"

@@ -451,6 +451,8 @@ randomCamera = () -> (
 
 ranks = method(Options=>{})
 ranks (Matrix, Matrix) := o -> (x, p) -> (
+    if (numcols x > 1) then x = matrix(x, numcols x,1);
+    if (numcols p > 1) then p = matrix(p, numcols p,1);
     a := PE/( m -> (
 	    evaluate(first m, mutableMatrix(x||p), last m);
 	    numericalRank matrix last m
@@ -463,6 +465,7 @@ ranks (Matrix, Matrix) := o -> (x, p) -> (
 	    );
    (a, b)
    )
+ranks (Point,Point) := o -> (x,p) -> ranks(matrix x, matrix p)
 
 rankCheck = method(Options=>{Hard=>true})
 rankCheck (Matrix, Matrix) := o -> (x, p) -> (

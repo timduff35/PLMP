@@ -20,7 +20,7 @@ for P in LIST do (
     FILENAME = DIR|last P|".txt";
     if (not fileExists FILENAME) then (
 	<< D << endl;
-    	compTime = first elapsedTiming load("degree.m2");
+    	compTime = first elapsedTiming load("numerical-problem-builder.m2");
 	stdio << "computation time = " << setupTime << " sec" << endl;
 	stdio << "------------------------------------------" << endl;
 	);

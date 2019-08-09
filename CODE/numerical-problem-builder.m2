@@ -159,10 +159,12 @@ filterRankCoP = (p,x) -> (
 
 --setRandomSeed 31452345342
 (y, c) = fabricateyc CC
+filterRank(y,c)
 varMatrix = gateMatrix{cameraVars}
 paramMatrix = gateMatrix{dataParams}
 masterGS = gateSystem(paramMatrix, varMatrix, F);
 norm evaluate(masterGS,y,c) -- ~0?
+
 
 -- this block is very hacky!
 if (instance(Jpivots, Symbol) and JACOBIAN) then (
@@ -172,17 +174,19 @@ if (instance(Jpivots, Symbol) and JACOBIAN) then (
     (M,N) = size J;
     elapsedTime JGS = gateSystem(paramMatrix, varMatrix, transpose matrix{flatten entries J});
     elapsedTime J0 = matrix(transpose evaluate(JGS,y,c),M,N);
-    elapsedTime Jpivots = rowSelector(J0,Threshold=>1e-4);
+    elapsedTime Jpivots = rowSelector(J0,Threshold=>1e-6);
     elapsedTime S = first SVD J0^Jpivots;
     )
 
 elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
 
+(y, c) = fabricateyc CC
+filterRank(y,c)
 if RERUNMONODROMY then elapsedTime (V,np)= 
 monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
-    Randomizer=>gammify);
+    Randomizer=>null,NumberOfNodes=>5);
 if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
 if RERUNMONODROMY then (
     stdio << #(points V.PartialSols) << " solutions found!" << endl;
@@ -208,20 +212,20 @@ restart
 --D = (4,0,{{0,1,2},{0,3}}) -- deg = 26240
 --D = (4,1,{{0,1,2,3},{0,4}}) -- deg = 11008 -- 24077.1 seconds elapsed (AL desktop) 
 
--- m = 4
+m = 4
 -- D = (4,0,{{0,1,3},{1,2},{0,2}}) -- degree 1728??
 -- D = (5,0,{{0,1,2,3}}) -- not minimal??
 --D = (4,0,{{0,1}}) -- degree = 4525?
 --D = (3,2,{{3,4}}) -- degree = 3067??
---D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??
+D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??
 --D=(3,1,{{0,1},{0,2},{0,3}}) -- degree = 544??
 --D =(3,2,{{0,1,2},{0,3},{0,4}}) -- degree = 544??
 
-m=3
+--m=3
 --D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D = (6,0,{{0,1,2,3,4},{0,5}}) -- 240 -- D.C.-ish, monodromy works
 --D = (4,1,{{0,1},{0,4}}) -- 264 -- ANGUILLA, monodromy works
-D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
+--D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
 --D = (5,1,{{0,1,2,3},{0,5}}) -- 328 -- LOS ANGELES, monodromy works
 --D = (4,2,{{4,5}}) -- 360 -- SEATTLE-ish, monodromy works
 --D = (5,0,{{0,1,2},{0,3}}) -- 432 -- ODESSA1, monodromy works
@@ -251,6 +255,8 @@ COFACTOR = true
 JACOBIAN = true
 RERUNMONODROMY = true
 needs "numerical-problem-builder.m2"
+setDefault(tStepMin=>1e-7)
+setDefault(maxCorrSteps=>2)
 ranks(matrix y,matrix c)
 
 

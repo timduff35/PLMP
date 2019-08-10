@@ -176,6 +176,7 @@ if (instance(Jpivots, Symbol) and JACOBIAN) then (
     elapsedTime J0 = matrix(transpose evaluate(JGS,y,c),M,N);
     elapsedTime Jpivots = rowSelector(J0,Threshold=>1e-6);
     elapsedTime S = first SVD J0^Jpivots;
+    << "pivot indices are " << toString Jpivots << endl;
     )
 
 elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);

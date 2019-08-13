@@ -1,3 +1,6 @@
+needsPackage "MonodromySolver"
+setDefault(tStepMin=>1e-7)
+setDefault(maxCorrSteps=>2)
 m = 6; -- number of cameras
 DIR = "./numerical/degree-6cameras/";
 COFACTOR = true;
@@ -23,7 +26,5 @@ for P in LIST do (
 
 end--
 restart
-setDefault(tStepMin=>1e-7)
-setDefault(maxCorrSteps=>2)
 needs "degree-6cameras.m2"
 Jpivots

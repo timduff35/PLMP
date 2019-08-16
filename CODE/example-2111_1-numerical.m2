@@ -5,6 +5,8 @@ m = 3
 D = (3,2,{{1,2},{1,3},{1,4}})
 Jpivots = {0, 1, 4, 5, 8, 9, 14, 29, 33, 44, 48, 57, 58, 59}
 RERUNMONODROMY = false;
+JACOBIAN = false;
+COFACTOR = true;
 needs "numerical-problem-builder.m2"
 
 (yStart, cStarts) = readStartSys "2111_1-start";
@@ -27,7 +29,8 @@ netList L
 (yTarget, cTarget) = encodeyc(cTargetList, PLTarget, CTarget, RR)
 
 --homotopy continuation
-PH' = specialize(PH,yStart||yTarget);
+PH = parametricSegmentHomotopy GS
+PH' = specialize(PH,yStart||transpose matrix yTarget);
 cTargets = trackHomotopy(PH', cStarts);
 
 --filtering

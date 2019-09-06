@@ -54,9 +54,14 @@ randKernel (Matrix, InexactFieldFamily) := o -> (M, FF) -> (
     )
 randKernel Matrix := o -> M -> randKernel(M, CC)
 
+reshapeCol = p -> if (numrows p == 1) then transpose p else p
+reshapeRow = p -> if (numcols p == 1) then transpose p else p
+
 -- RANDOMIZATION FOR PARAMETER POINT p
 -- assumes random CC has unit modulus!
-gammify = p -> (
+gammify = method()
+gammify Point := p -> gammify reshapeCol matrix p
+gammify Matrix := p -> (
     gammas := for i from 1 to m*#indepLines list random CC;
     indDiag := flatten(gammas/(g->{g,g,g}));
     -- abstract to arbitrary diagram, number of cameras

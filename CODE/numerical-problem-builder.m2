@@ -143,14 +143,14 @@ LE=apply(#CoLmatrices,i->(
 
 filterRank = (p,x) -> (
     -- false iff residual small
-    (cop,col) := ranks(x,p);
+    (cop,col) := ranks(matrix x,matrix p);
     not(all(cop,x->x==3) and all(col,x->x==2))
     )
 
 filterRankCoP = (p,x) -> (
     -- false iff residual small
     a := PE/( m -> (
-	    evaluate(first m, mutableMatrix(x||p), last m);
+	    evaluate(first m, mutableMatrix(x||matrix p), last m);
 	    numericalRank matrix last m
 	    )
 	    );
@@ -182,12 +182,14 @@ if (instance(Jpivots, Symbol) and JACOBIAN) then (
 elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
 
 (y, c) = fabricateyc CC
-filterRank(y,c)
+filterRank(gammify y,c)
 if RERUNMONODROMY then elapsedTime (V,np)= 
-monodromySolve(GS, 
+(V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
-    Randomizer=>null);
+    Randomizer=>gammify,
+    EdgesSaturated => SATURATE
+    );
 --if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
 if RERUNMONODROMY then (
     stdio << #(points V.PartialSols) << " solutions found!" << endl;
@@ -256,9 +258,12 @@ D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??
 COFACTOR = true
 JACOBIAN = true
 RERUNMONODROMY = true
-needs "numerical-problem-builder.m2"
+needsPackage "NumericalAlgebraicGeometry"
 setDefault(tStepMin=>1e-7)
 setDefault(maxCorrSteps=>2)
+needs "numerical-problem-builder.m2"
+y
+gammify y
 ranks(matrix y,matrix c)
 
 

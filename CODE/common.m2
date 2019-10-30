@@ -232,6 +232,14 @@ L
 -- cross product of col vectors -- takes Matrice or GateMatrix pair
 crossProduct = (y,q) -> matrix{{y_(1,0)*q_(2,0)-y_(2,0)*q_(1,0)},{y_(2,0)*q_(0,0)-y_(0,0)*q_(2,0)},{y_(0,0)*q_(1,0)-y_(1,0)*q_(0,0)}}
 
+cmat = method(Options=>{Normalized=>true})
+cmat List := o -> L -> cmat(L#0,L#1,L#2,o)
+cmat (Thing,Thing,Thing) := o -> (a,b,c) -> (
+    tx := matrix{{0,-c,b},{c,0,-a},{-b,a,0}};
+    if o.Normalized and not areEqual(L#2,0.0) then tx = (-1/L#2) * tx;
+    tx
+    )
+
 --
 randomLineThroughPoints = (P, FF) -> ( 
     m := numrows P; -- m = dim + 1

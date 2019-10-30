@@ -183,12 +183,14 @@ elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
 
 (y, c) = fabricateyc CC
 filterRank(gammify y,c)
+if not instance(NEDGES,ZZ) then NEDGES=4
 if RERUNMONODROMY then elapsedTime (V,np)= 
 (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify,
-    EdgesSaturated => SATURATE
+    EdgesSaturated => SATURATE,
+    NumberOfEdges=>NEDGES
     );
 --if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
 if RERUNMONODROMY then (

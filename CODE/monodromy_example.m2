@@ -1,4 +1,18 @@
 restart
+needsPackage "MonodromySolver"
+needs "common.m2"
+declareVariable \ {x}
+declareVariable \ {p}
+X = gateMatrix{{x}}
+P = gateMatrix{{p0,p1}}
+F=gateSystem(P,X,gateMatrix{{p0*x^3+p1}})
+(p0,x0)=createSeedPair F
+evaluate(F,x0,p0)
+V= first monodromySolve(F,point{{p0}},{point{{x0}}},)
+points V.PartialSols
+
+
+restart
 setRandomSeed 2019
 m = 3; -- number of cameras
 D=(1,5,{{0,1},{0,2},{0,3},{4,5}})--D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??

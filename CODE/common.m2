@@ -1,5 +1,6 @@
 -- IMPORTS 
 debug needsPackage "NumericalAlgebraicGeometry"
+debug needsPackage "MonodromySolver"
 debug SLPexpressions
 debug needsPackage "Core"
 

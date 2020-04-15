@@ -184,18 +184,14 @@ elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
 (y, c) = fabricateyc CC
 filterRank(gammify y,c)
 if not instance(NEDGES,ZZ) then NEDGES=4
-if RERUNMONODROMY then elapsedTime (V,np)= 
-(V,np)=monodromySolve(GS, 
+if RERUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify,
     EdgesSaturated => SATURATE,
     NumberOfEdges=>NEDGES
     );
---if (RERUNMONODROMY and not instance(FILENAME,Symbol)) then writeStartSys(V.BasePoint, points V.PartialSols, Filename => FILENAME);
-if RERUNMONODROMY then (
-    stdio << #(points V.PartialSols) << " solutions found!" << endl;
-    )
+
 -- clear symbols for next run
 w=symbol w
 x=symbol x
@@ -218,17 +214,17 @@ restart
 --D = (4,0,{{0,1,2},{0,3}}) -- deg = 26240
 --D = (4,1,{{0,1,2,3},{0,4}}) -- deg = 11008 -- 24077.1 seconds elapsed (AL desktop) 
 
-m = 4
+--m = 3
 -- D = (4,0,{{0,1,3},{1,2},{0,2}}) -- degree 1728??
 -- D = (5,0,{{0,1,2,3}}) -- not minimal??
 --D = (4,0,{{0,1}}) -- degree = 4525?
 --D = (3,2,{{3,4}}) -- degree = 3067??
-D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??
+--D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??
 --D=(3,1,{{0,1},{0,2},{0,3}}) -- degree = 544??
 --D =(3,2,{{0,1,2},{0,3},{0,4}}) -- degree = 544??
 
---m=3
---D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
+m=3
+D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D = (6,0,{{0,1,2,3,4},{0,5}}) -- 240 -- D.C.-ish, monodromy works
 --D = (4,1,{{0,1},{0,4}}) -- 264 -- ANGUILLA, monodromy works
 --D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
@@ -257,6 +253,8 @@ D=(2,3,{{1,2},{1,3},{1,4}}) --degree=32??
 --D=(3,2,{{0,1},{0,2},{2,0},{0,3},{0,4}}) -- fails rank check
 --D=(1,5,{{0,1},{0,2},{0,3},{0,4},{0,5}}) -- fails rank check
 
+m=3
+D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 COFACTOR = true
 JACOBIAN = true
 RERUNMONODROMY = true
@@ -264,7 +262,13 @@ needsPackage "NumericalAlgebraicGeometry"
 setDefault(tStepMin=>1e-7)
 setDefault(maxCorrSteps=>2)
 needs "numerical-problem-builder.m2"
-y
+-- code for generating various evaluators 
+PH = parametricSegmentHomotopy
+-- HxHt
+h=cCode(transpose(PH.GateHomotopy#"Hx"|PH.GateHomotopy#"Ht"),gateMatrix{cameraVars|{PH.GateHomotopy#"T"}|flatten entries PH#Parameters})
+-- HxH
+h=cCode(transpose(PH.GateHomotopy#"Hx"|PH.GateHomotopy#"H"),gateMatrix{cameraVars|{PH.GateHomotopy#"T"}|flatten entries PH#Parameters})
+
 gammify y
 ranks(matrix y,matrix c)
 

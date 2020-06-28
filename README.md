@@ -34,4 +34,4 @@ To get started, read through and execute the Macaulay2-based examples described 
 ## Caveats
    
 * Certain computations may take a long time (couple of hours) and may exceed the RAM capacity (one example employing F4 consumed ~16Gb).  
-* At the moment the numerical degree computations need a version of Macaulay2 at [this branch of this fork](https://github.com/timduff35/M2/tree/monodromy). 
+* The numerical degree computations require a recent version of Macaulay2.

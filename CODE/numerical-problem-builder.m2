@@ -109,12 +109,12 @@ CoLmatrices = if (m<3) then {} else apply(D#0,l->
     )
 
 -- master system w/ all max minors from CoL, CoP matrices
-elapsedTime F=transpose gateMatrix{
+elapsedTime F=charts || transpose gateMatrix{
     flatten(
 	CoLmatrices/(M -> allMinors(M, 3, Laplace=>COFACTOR)) |
 	CoPmatrices/(M -> maxMinors(M, Laplace=>COFACTOR))
 	)
-    } || charts;
+    };
 << " number of polynomials is " << numrows F << endl
 -- filter path jumps during monodromy
 filterEval = (p,x) -> (
@@ -165,7 +165,7 @@ paramMatrix = gateMatrix{dataParams}
 masterGS = gateSystem(paramMatrix, varMatrix, F);
 norm evaluate(masterGS,y,c) -- ~0?
 
-
+-*
 -- this block is very hacky!
 if (instance(Jpivots, Symbol) and JACOBIAN) then (
     -- better to have this precomputed
@@ -178,18 +178,21 @@ if (instance(Jpivots, Symbol) and JACOBIAN) then (
     elapsedTime S = first SVD J0^Jpivots;
     << "pivot indices are " << toString Jpivots << endl;
     )
-
-elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
+*-
+elapsedTime GS= squareDown(y, c, masterGS)
 
 (y, c) = fabricateyc CC
 filterRank(gammify y,c)
 if not instance(NEDGES,ZZ) then NEDGES=4
+if not instance(NNODES,ZZ) then NNODES=2
+if instance(SATURATE,Symbol) then SATURATE=true
 if RERUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify,
     EdgesSaturated => SATURATE,
-    NumberOfEdges=>NEDGES
+    NumberOfEdges=>NEDGES,
+    NumberOfNodes=>NNODES
     );
 
 -- clear symbols for next run
@@ -224,7 +227,7 @@ restart
 --D =(3,2,{{0,1,2},{0,3},{0,4}}) -- degree = 544??
 
 m=3
-D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
+--D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D = (6,0,{{0,1,2,3,4},{0,5}}) -- 240 -- D.C.-ish, monodromy works
 --D = (4,1,{{0,1},{0,4}}) -- 264 -- ANGUILLA, monodromy works
 --D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works

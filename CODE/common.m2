@@ -510,7 +510,8 @@ writePermutations (HomotopyNode, String) := o -> (V, filename) -> (
     writePermutations(perms,filename);
     )
 writePermutations (List, String) := o -> (L, filename) -> (
-    perms := L/(P->P/(i->i+1)); -- increment letters by 1 for GAP
+    goodPerms := select(L,p->all(p,pi->instance(pi,ZZ)));
+    perms := goodPerms/(P->P/(i->i+1)); -- increment letters by 1 for GAP
     file := openOut (currentFileDirectory | filename);
     for i from 0 to #perms-1 do file << "p" << i << ":= PermList(" << toString(new Array from perms#i) << ");" << endl;
     file << "G:=Group(";
@@ -519,3 +520,83 @@ writePermutations (List, String) := o -> (L, filename) -> (
     close file;
     )
 
+-- "join" of two GateSystems (take all functions from both)
+GateSystem || GateSystem := (P, Q) -> (
+    allVars := unique( (flatten entries vars P) | (flatten entries vars Q) );
+    allParams := unique( (flatten entries parameters P) | (flatten entries parameters Q) );
+    gateSystem(
+	gateMatrix{allParams},
+	gateMatrix{allVars},
+    	(gateMatrix P)||(gateMatrix Q)
+	)
+    )
+
+-- sum of two GateSystems
+GateSystem + GateSystem := (P, Q) -> (
+    if (numFunctions P =!= numFunctions Q) then error "can only add GateSystems of the same shape";
+    H := P || Q;
+    gateSystem(parameters H, vars H, gateMatrix P + gateMatrix Q)
+    )
+
+-- take some functions from the GateSystem
+GateSystem ^ List := (P, inds) -> gateSystem(parameters P, vars P, (gateMatrix P)^inds)
+
+evaluateJacobian (Point, Point, GateSystem) := (y0, c0, F) -> (
+    J := diff(vars F, gateMatrix F);
+    (M, N) := (numrows J, numcols J);
+    JGS := gateSystem(parameters F, vars F, transpose matrix{flatten entries J});
+    matrix(transpose evaluate(JGS, y0, c0),M,N)
+    )
+
+-- helpers for rowSelector
+orthoProjectQR = (M,L) -> (
+    (Q,R)=complexQR L;
+--    Q := (SVD L)#1;
+    Q*conjugate transpose Q *M
+    )
+
+-- orthonormal basis for col(L) using SVD
+ONB = L -> (
+    (S,U,Vt) := SVD L;
+    r := # select(S,s->not areEqual(s,0));
+    U_{0..r-1}
+    )
+
+-- component of col(L) that is perpendicular to M
+perp = method(Options=>{UseSVD=>true})
+perp (Matrix, Matrix) := o -> (M, L) -> if areEqual(norm L, 0) then M else (
+    Lortho := if o.UseSVD then ONB L else first complexQR L; -- QR seems buggy
+    Lperp := M-Lortho*conjugate transpose Lortho * M;
+    if o.UseSVD then ONB Lperp else first complexQR Lperp
+    )
+
+rowSelector = method(Options=>{BlockSize=>1,UseSVD=>true,Verbose=>false})
+rowSelector (Point, Point, GateSystem) := o -> (y0, c0, F) -> (
+    blockSize := o.BlockSize;
+    numBlocks = ceiling((numFunctions F)/blockSize);
+    numIters=0;
+    L := matrix{for i from 1 to 14 list 0_CC}; -- initial "basis" for row space
+    r := 0;
+    goodRows := {};
+    diffIndices := {};
+    while (r < 14 and numIters < numBlocks) do (
+    	diffIndices = for j from numIters*blockSize to min((numIters+1)*blockSize,numFunctions F)-1 list j;
+	if o.Verbose then << "processing rows " << first diffIndices << " thru " << last diffIndices << endl;
+    	newRows := evaluateJacobian(y0,c0,F^diffIndices);
+    	for j from 0 to numrows newRows - 1 do (
+	    tmp := transpose perp(transpose newRows^{j}, transpose L);
+	    if not areEqual(0, norm tmp) then (
+		if o.Verbose then << "added row " << blockSize*numIters+j << endl;
+	    	if areEqual(norm L^{0}, 0) then L = tmp else L = L || tmp;
+	    	goodRows = append(goodRows, blockSize*numIters+j);
+		);
+    	    );
+    	r = numericalRank L;
+    	numIters = numIters+1;
+	);
+    if o.Verbose then << "the rows selected are " << goodRows << endl;
+    goodRows
+    )
+
+squareDown = method(Options=>{BlockSize=>1, Verbose=>true})
+squareDown (Point, Point, GateSystem) := o -> (y0, c0, F) -> F^(rowSelector(y0, c0, F, BlockSize => o.BlockSize, Verbose=>o.Verbose))

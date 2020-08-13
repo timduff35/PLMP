@@ -498,16 +498,24 @@ pCompose (MutableHashTable, MutableHashTable) := (H1, H2) -> (
     )
 
 writePermutations = method(Options=>{})
-writePermutations (HomotopyNode, String) := o -> (V, filename) -> (
-    -- assume for now that G has 2 nodes
-    G := V.Graph;
-    V1 := first G.Vertices;
-    V2 := last G.Vertices;
-    E1 := toList V1.Edges;
-    -- "petal loops" based at V1
-    e1 := first E1;
-    perms := apply(drop(E1,1),e->values pCompose(e1.Correspondence12,e.Correspondence21));
-    writePermutations(perms,filename);
+writePermutations (HomotopyNode, ZZ, String) := o -> (V, rc, filename) -> (
+    if rc != length V.PartialSols then (f:=openOut filename; f << "failed"; close f;) else (
+        -*
+        1) find subgraph whose edges have complete correspondences
+        2) compute MST
+        3) each "extra edge" determinates a cycle: compose the corresponding permutations
+        *-
+
+        -- assume for now that G has 2 nodes
+        G := V.Graph;
+        V1 := first G.Vertices;
+        V2 := last G.Vertices;
+        E1 := toList V1.Edges;
+        -- "petal loops" based at V1
+        e1 := first E1;
+        perms := apply(drop(E1,1),e->values pCompose(e1.Correspondence12,e.Correspondence21));
+        writePermutations(perms,filename);
+        );
     )
 writePermutations (List, String) := o -> (L, filename) -> (
     goodPerms := select(L,p->all(p,pi->instance(pi,ZZ)));

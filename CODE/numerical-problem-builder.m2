@@ -27,6 +27,22 @@ scan({CorrectorTolerance=>null,
 	tStepMin => null
 	}, 
     opt -> setDefault(opt))
+
+--view current tracker settings
+netList apply({CorrectorTolerance,
+	EndZoneFactor,
+	InfinityThreshold,
+	maxCorrSteps,
+	NoOutput,
+	numberSuccessesBeforeIncrease,
+	Precision,
+	Predictor,
+	stepIncreaseFactor,
+	tStep,
+	tStepMin
+	}, 
+    opt -> {opt, getDefault(opt)})
+
 *-
 
 -- setting up input gates
@@ -179,14 +195,14 @@ if (instance(Jpivots, Symbol) and JACOBIAN) then (
     << "pivot indices are " << toString Jpivots << endl;
     )
 *-
-elapsedTime GS= squareDown(y, c, masterGS)
+elapsedTime GS= squareDown(y, c, numVariables masterGS, masterGS)
 
 (y, c) = fabricateyc CC
 filterRank(gammify y,c)
 if not instance(NEDGES,ZZ) then NEDGES=4
 if not instance(NNODES,ZZ) then NNODES=2
 if instance(SATURATE,Symbol) then SATURATE=true
-if RERUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS, 
+if RUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify,

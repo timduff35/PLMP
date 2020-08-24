@@ -494,26 +494,75 @@ essential = (R,t) -> R * cpMatrix t
 
 pCompose = method()
 pCompose (MutableHashTable, MutableHashTable) := (H1, H2) -> (
-    new MutableHashTable from apply(keys H1,k-> if H2#?(H1#k) then k=> H2#(H1#k))
+    new MutableHashTable from apply(keys H2,k-> if H1#?(H2#k) then k=> H1#(H2#k))
     )
+///TEST
+H1 = new MutableHashTable from {0=>1, 1=>2, 2=>0}
+H2 = new MutableHashTable from {0=>2, 1=>1, 2=>0}
+H1H2=pCompose(H1,H2)
+H2H1=pCompose(H2,H1)
+assert(H1H2#1 == 2)
+assert(H2H1#1 == 0)
+///
+
+inverse MutableHashTable := H -> new MutableHashTable from apply(keys H, values H, (k,v) -> v=>k)
+
+-*
+G=V.Graph
+
+unvisited = set toList G.Vertices
+unvisited = unvisited - {V}
+spanningEdges = set{}
+cycleMakingEdges = set{}
+while #unvisited > 0 do (
+    e := first keys unvisited;
+    
+    
+apply(verts, v -> 
+*-
+
 
 writePermutations = method(Options=>{})
 writePermutations (HomotopyNode, ZZ, String) := o -> (V, rc, filename) -> (
-    if rc != length V.PartialSols then (f:=openOut filename; f << "failed"; close f;) else (
-        -*
-        1) find subgraph whose edges have complete correspondences
-        2) compute MST
-        3) each "extra edge" determinates a cycle: compose the corresponding permutations
-        *-
-
-        -- assume for now that G has 2 nodes
+    if rc != length V.PartialSols then (f:=openOut filename; f << "failed"; close f) else (
+        idPerm := new MutableHashTable from for i from 0 to rc-1 list i => i;
+        -- step 0: extract subgraph of complete correspondences
         G := V.Graph;
-        V1 := first G.Vertices;
-        V2 := last G.Vertices;
-        E1 := toList V1.Edges;
-        -- "petal loops" based at V1
-        e1 := first E1;
-        perms := apply(drop(E1,1),e->values pCompose(e1.Correspondence12,e.Correspondence21));
+        -- EG = edges with complete correspondence
+        EG := reverse toList select(G.Edges, e -> (ce1 := e.Correspondence12; ce2 := e.Correspondence21; rc == length keys ce1 and rc == length keys ce2));
+        -- VG = connected component of V in subgraph of EG
+        VG := set(apply(EG, e -> e.Node1) | apply(EG, e -> e.Node2));
+        neighbor = (v, e) -> if v === e.Node1 then e.Node2 else if v === e.Node2 then e.Node1 else error "edge not incident at vertex";
+        -- STEP 1: BUILD SPANNING TREE on (VG, EG)
+        (uncoveredV, uncoveredE) := (VG-set{V},set EG);
+        T := new MutableHashTable from {};
+        while (#uncoveredV > 0) do (
+            -- select an uncovered vertex adjacent to a covered vertex
+            v := first select(1, keys uncoveredV, v -> any(v.Edges, e -> (u := neighbor(v, e); not member(u, uncoveredV))));
+            -- select an edge w/ complete correspondence
+            e := first select(1, reverse v.Edges, e -> (u := neighbor(v, e); not member(u, uncoveredV) and member(e, uncoveredE)));
+            T#v = e;
+            uncoveredE = uncoveredE - set{e};
+            uncoveredV = uncoveredV - set{v};
+            );
+        -- STEP 2: extract permutations from cycle basis
+        perms := values \ apply(keys uncoveredE, e -> (
+                (u, v) := (e.Node1, e.Node2);
+                uPath := idPerm;
+                while T#?u do (
+                    ei = T#u;
+                    uPath = if u === ei.Node1 then pCompose(ei.Correspondence12, uPath) else pCompose(ei.Correspondence21, uPath);
+                    u = neighbor(u, T#u);
+                    );
+                vPath := idPerm;
+                while T#?v do (
+                    ei = T#v;
+                    vPath = if v === ei.Node1 then pCompose(ei.Correspondence12, vPath) else pCompose(ei.Correspondence21, vPath);
+                    v = neighbor(v, T#v);
+                    );
+                pCompose(vPath, pCompose(e.Correspondence12, inverse uPath))
+                )
+            );
         writePermutations(perms,filename);
         );
     )
@@ -578,8 +627,10 @@ perp (Matrix, Matrix) := o -> (M, L) -> if areEqual(norm L, 0) then M else (
     if o.UseSVD then ONB Lperp else first complexQR Lperp
     )
 
+-- extract a LocalRegularSequence from F near (parameter, solution) = (y0, c0)
+-- of length <= n
 rowSelector = method(Options=>{BlockSize=>1,UseSVD=>true,Verbose=>false})
-rowSelector (Point, Point, GateSystem) := o -> (y0, c0, F) -> (
+rowSelector (Point, Point, ZZ, GateSystem) := o -> (y0, c0, n, F) -> (
     blockSize := o.BlockSize;
     numBlocks = ceiling((numFunctions F)/blockSize);
     numIters=0;
@@ -587,7 +638,7 @@ rowSelector (Point, Point, GateSystem) := o -> (y0, c0, F) -> (
     r := 0;
     goodRows := {};
     diffIndices := {};
-    while (r < 14 and numIters < numBlocks) do (
+    while (r < n and numIters < numBlocks) do (
     	diffIndices = for j from numIters*blockSize to min((numIters+1)*blockSize,numFunctions F)-1 list j;
 	if o.Verbose then << "processing rows " << first diffIndices << " thru " << last diffIndices << endl;
     	newRows := evaluateJacobian(y0,c0,F^diffIndices);
@@ -607,4 +658,4 @@ rowSelector (Point, Point, GateSystem) := o -> (y0, c0, F) -> (
     )
 
 squareDown = method(Options=>{BlockSize=>1, Verbose=>true})
-squareDown (Point, Point, GateSystem) := o -> (y0, c0, F) -> F^(rowSelector(y0, c0, F, BlockSize => o.BlockSize, Verbose=>o.Verbose))
+squareDown (Point, Point, ZZ, GateSystem) := o -> (y0, c0, n, F) -> F^(rowSelector(y0, c0, n, F, BlockSize => o.BlockSize, Verbose=>o.Verbose))

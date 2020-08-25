@@ -1,0 +1,117 @@
+gap> IsSymmetricGroup(G);
+false
+gap> Blocks(G, [1..64]);
+[ [ 1, 46 ], [ 2, 47 ], [ 3, 48 ], [ 4, 45 ], [ 5, 58 ], [ 6, 59 ], [ 7, 60 ], [ 8, 57 ], 
+  [ 9, 64 ], [ 10, 63 ], [ 11, 61 ], [ 12, 62 ], [ 13, 35 ], [ 14, 34 ], [ 15, 36 ], [ 16, 33 ], 
+  [ 17, 32 ], [ 18, 30 ], [ 19, 29 ], [ 20, 31 ], [ 21, 43 ], [ 22, 42 ], [ 23, 44 ], [ 24, 41 ], 
+  [ 25, 40 ], [ 26, 38 ], [ 27, 37 ], [ 28, 39 ], [ 49, 56 ], [ 50, 54 ], [ 51, 53 ], [ 52, 55 ] ]
+gap> Centralizer(SymmetricGroup([1..64], G);
+Error, usage: SymmetricGroup( [<filter>, ]<deg> ) at /usr/share/gap/grp/basic.gd:681 called from
+<function "SymmetricGroup">( <arguments> )
+ called from read-eval loop at *stdin*:76
+you can 'quit;' to quit to outer loop, or
+you can 'return;' to continue
+brk> quit;
+Syntax error: ) expected
+Centralizer(SymmetricGroup([1..64], G);
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+gap> Centralizer(SymmetricGroup([1..64]), G);
+<permutation group with 3 generators>
+gap> C=Centralizer(SymmetricGroup([1..64]), G);
+Error, Variable: 'C' must have a value
+not in any function at *stdin*:77
+gap> C:=Centralizer(SymmetricGroup([1..64]), G);
+<permutation group with 3 generators>
+gap> Order(C);
+8
+gap> StructureDescription(C);
+"C2 x C2 x C2"
+gap> Order(G/C);
+25165824
+gap> Factorial(8);
+40320
+gap> G1:=Image(ActionHomomorphism(G,Blocks(G,[1..64]),OnSets));
+<permutation group with 27 generators>
+gap> Generators(G1);
+Error, Variable: 'Generators' must have a value
+not in any function at *stdin*:84
+gap> Blocks(G1,[1..32]);
+[ [ 1, 32 ], [ 2, 30 ], [ 3, 31 ], [ 4, 29 ], [ 5, 9 ], [ 6, 12 ], [ 7, 10 ], [ 8, 11 ], 
+  [ 13, 17 ], [ 14, 20 ], [ 15, 18 ], [ 16, 19 ], [ 21, 25 ], [ 22, 28 ], [ 23, 26 ], [ 24, 27 ] ]
+gap> G2:=Image(ActionHomomorphism(G1,Blocks(G1,[1..32]),OnSets));
+<permutation group with 22 generators>
+gap> Blocks(G2,[1..16]);
+[ [ 1, 3 ], [ 2, 4 ], [ 5, 7 ], [ 6, 8 ], [ 9, 11 ], [ 10, 12 ], [ 13, 15 ], [ 14, 16 ] ]
+gap> Order(G);
+201326592
+gap> Factors(Order(G)/Factorial(8));
+[ 524288/105 ]
+gap> G3:=Image(ActionHomomorphism(G2,Blocks(G2,[1..16]),OnSets));
+Group([ (1,2)(3,4)(5,6)(7,8), (1,5)(2,6)(3,8)(4,7), (1,4)(2,3)(5,7)(6,8), (3,4), (3,6)
+(4,5), (3,8,5)(4,7,6), (3,4)(5,6), (3,4)(7,8) ])
+gap> Order(G3);
+384
+gap> Factors(Order(G3));
+[ 2, 2, 2, 2, 2, 2, 2, 3 ]
+gap> StructureDescription(G3);
+"(C2 x C2 x C2 x C2) : S4"
+gap> Blocks(G3,[1..8]);
+[ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ]
+gap> Order(G3);
+384
+gap> 24*2^4;
+384
+gap> Factors(Order(G)/24*2^4);
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ]
+gap> Length(Factors(Order(G)/24*2^4));
+27
+gap> Order(C);
+8
+gap> StructureDescription(C);
+"C2 x C2 x C2"
+gap> Order(G4);
+Error, Variable: 'G4' must have a value
+not in any function at *stdin*:101
+gap> Order(G3);
+384
+gap> Order(G/C);
+25165824
+gap> Order(G1);
+12582912
+gap> Order(G2);
+98304
+gap> Order(G)/Order(G1);
+16
+gap> Order(G1)/Order(G2);
+128
+gap> Order(G2)/Order(G3);
+256
+gap> 2^8;
+256
+gap> 2^6;
+64
+gap> 2^7;
+128
+gap> Centralizer(SymmetricGroup([1..8],G3);
+Error, usage: SymmetricGroup( [<filter>, ]<deg> ) at /usr/share/gap/grp/basic.gd:681 called from
+<function "SymmetricGroup">( <arguments> )
+ called from read-eval loop at *stdin*:112
+you can 'quit;' to quit to outer loop, or
+you can 'return;' to continue
+brk> quit;
+Syntax error: ) expected
+Centralizer(SymmetricGroup([1..8],G3);
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+gap> Centralizer(SymmetricGroup([1..8]),G3);
+Group([ (1,2)(3,4)(5,6)(7,8) ])
+gap> Centralizer(SymmetricGroup([1..16]),G4);
+Error, Variable: 'G4' must have a value
+not in any function at *stdin*:113
+gap> Centralizer(SymmetricGroup([1..16]),G2);
+Group([ (1,3)(2,4)(5,7)(6,8)(9,11)(10,12)(13,15)(14,16) ])
+gap> Centralizer(SymmetricGroup([1..16]),G1);
+Group(())
+gap> Centralizer(SymmetricGroup([1..32]),G1);
+Group([ (1,3)(2,4)(5,7)(6,8)(9,10)(11,12)(13,15)(14,16)(17,18)(19,20)(21,23)(22,24)(25,26)(27,28)
+(29,30)(31,32), (1,31)(2,29)(3,32)(4,30)(5,10)(6,11)(7,9)(8,12)(13,18)(14,19)(15,17)(16,20)(21,26)
+(22,27)(23,25)(24,28) ])

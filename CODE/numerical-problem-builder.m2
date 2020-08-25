@@ -201,6 +201,7 @@ elapsedTime GS= squareDown(y, c, numVariables masterGS, masterGS)
 filterRank(gammify y,c)
 if not instance(NEDGES,ZZ) then NEDGES=4
 if not instance(NNODES,ZZ) then NNODES=2
+if not instance(ROOTCOUNT,ZZ) then ROOTCOUNT=null
 if instance(SATURATE,Symbol) then SATURATE=true
 if RUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
@@ -208,7 +209,8 @@ if RUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS,
     Randomizer=>gammify,
     EdgesSaturated => SATURATE,
     NumberOfEdges=>NEDGES,
-    NumberOfNodes=>NNODES
+    NumberOfNodes=>NNODES,
+    TargetSolutionCount=>ROOTCOUNT
     );
 
 -- clear symbols for next run

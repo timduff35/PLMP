@@ -529,7 +529,12 @@ writePermutations (HomotopyNode, ZZ, String) := o -> (V, rc, filename) -> (
         -- step 0: extract subgraph of complete correspondences
         G := V.Graph;
         -- EG = edges with complete correspondence
-        EG := reverse toList select(G.Edges, e -> (ce1 := e.Correspondence12; ce2 := e.Correspondence21; rc == length keys ce1 and rc == length keys ce2));
+        EG := reverse toList select(G.Edges, e -> (
+                ve1 := delete(,unique values e.Correspondence12); 
+                ve2 := delete(,values e.Correspondence21); 
+                rc == length ve1 and rc == length ve2 
+                )
+            );
         -- VG = connected component of V in subgraph of EG
         VG := set(apply(EG, e -> e.Node1) | apply(EG, e -> e.Node2));
         neighbor = (v, e) -> if v === e.Node1 then e.Node2 else if v === e.Node2 then e.Node1 else error "edge not incident at vertex";

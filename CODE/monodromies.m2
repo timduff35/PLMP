@@ -36,7 +36,7 @@ result of StructureDescription: (C2 x C2) : S4 (":" indicates semidirect product
      128
      gap> Order(G2)/Order(G3);
      256
-    so perhaps C2 wr (C2 wr (C2 wr (C2 wr S4)) ^ A32) ^ (C16 -> S64)
+    so perhaps C2 wr (C2 wr (C2 wr (C2 wr S4)) ^ A32) ^ (Z2^4 -> S64)
     this one should probably be rerun with more loops!
     *-
     (4,0,{{1,2},{2,3},{1,3}})=> ("3010_0", 216), -- full symmetric
@@ -115,3 +115,27 @@ needs "monodromies.m2"
 -*
 note: random seed 999999 for problem 2102_2 results in contamination without the filter, tstepMin=1e-16, maxCorr=>3
 *-
+
+
+
+restart
+setRandomSeed 0
+COFACTOR = true; -- strategy for how to evaluate determinants
+RUNMONODROMY = true;
+NEDGES=5;
+NNODES=5
+--betti for complete graph with multiple edges
+betti (ZZ, ZZ) := o -> (n, m) -> m*(n^2-n)/2-n+1
+betti(NNODES, NEDGES)
+SATURATE=true;
+
+m=3
+needsPackage "NumericalAlgebraicGeometry"
+setDefault(tStepMin=>1e-8)
+setDefault(maxCorrSteps=>2)
+FILENAME="test.txt"
+D=(6,1,{{0,6},{0,1,2,3,4,5}})
+compTime = first elapsedTiming load("numerical-problem-builder.m2"); -- time to initialize graph can be wayy shorter here
+elapsedTime writePermutations(V, 64, FILENAME)
+
+ => ("2005_5", 64), -- IMPRIMITIVE

@@ -521,8 +521,18 @@ while #unvisited > 0 do (
 apply(verts, v -> 
 *-
 
-
 writePermutations = method(Options=>{})
+writePermutations (List, String) := o -> (L, filename) -> (
+    goodPerms := select(L,p->all(p,pi->instance(pi,ZZ)));
+    perms := goodPerms/(P->P/(i->i+1)); -- increment letters by 1 for GAP
+    file := openOut (currentFileDirectory | filename);
+    for i from 0 to #perms-1 do file << "p" << i << ":= PermList(" << toString(new Array from perms#i) << ");" << endl;
+    file << "G:=Group(";
+    for i from 0 to #perms-2 do file << "p" << i << ", ";
+    file << "p" << #perms-1 << ");";
+    close file;
+    )
+-- todo: preselect a non-bottleneck vertex
 writePermutations (HomotopyNode, ZZ, String) := o -> (V, rc, filename) -> (
     if rc != length V.PartialSols then (f:=openOut filename; f << "failed"; close f) else (
         idPerm := new MutableHashTable from for i from 0 to rc-1 list i => i;
@@ -543,11 +553,16 @@ writePermutations (HomotopyNode, ZZ, String) := o -> (V, rc, filename) -> (
         T := new MutableHashTable from {};
         while (#uncoveredV > 0) do (
             -- select an uncovered vertex adjacent to a covered vertex
-            v := first select(1, keys uncoveredV, v -> any(v.Edges, e -> (u := neighbor(v, e); not member(u, uncoveredV))));
-            -- select an edge w/ complete correspondence
-            e := first select(1, reverse v.Edges, e -> (u := neighbor(v, e); not member(u, uncoveredV) and member(e, uncoveredE)));
-            T#v = e;
-            uncoveredE = uncoveredE - set{e};
+            vList := select(1, keys uncoveredV, v -> any(v.Edges, e -> (u := neighbor(v, e); not member(u, uncoveredV) and member(e, uncoveredE))));
+            if # vList == 1 then (
+                v := first vList;
+                -- select an edge w/ complete correspondence
+                eList := select(1, reverse v.Edges, e -> (u := neighbor(v, e); not member(u, uncoveredV) and member(e, uncoveredE)));
+                if #eList == 1 then (
+                    T#v = first eList; 
+                    uncoveredE = uncoveredE - set{e};
+                    );
+                );
             uncoveredV = uncoveredV - set{v};
             );
         -- STEP 2: extract permutations from cycle basis
@@ -570,16 +585,6 @@ writePermutations (HomotopyNode, ZZ, String) := o -> (V, rc, filename) -> (
             );
         writePermutations(perms,filename);
         );
-    )
-writePermutations (List, String) := o -> (L, filename) -> (
-    goodPerms := select(L,p->all(p,pi->instance(pi,ZZ)));
-    perms := goodPerms/(P->P/(i->i+1)); -- increment letters by 1 for GAP
-    file := openOut (currentFileDirectory | filename);
-    for i from 0 to #perms-1 do file << "p" << i << ":= PermList(" << toString(new Array from perms#i) << ");" << endl;
-    file << "G:=Group(";
-    for i from 0 to #perms-2 do file << "p" << i << ", ";
-    file << "p" << #perms-1 << ");";
-    close file;
     )
 
 -- "join" of two GateSystems (take all functions from both)

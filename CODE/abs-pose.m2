@@ -75,13 +75,34 @@ npoints = 2;
 nlines = 3-npoints;
 setRandomSeed 0
 load "abs-pose.m2";
+netList entries gateMatrix G
 V=first monodromySolve(Gsq, Param0, {X0})
 sols = points V.PartialSols
 Rots = apply(coordinates \ sols, x -> matrix{{x#0,x#1,x#2},{x#4,x#5,x#6},{x#8,x#9,x#10}})
 translations = apply(coordinates \ sols, x -> matrix{{x#3},{x#7},{x#11}})
+v = transpose Rots#0 * translations#0 - transpose Rots#1 * translations#1
+SVD(v|A_{0})
+eigenvalues(A-id_(CC^3))
+(eval,evec)=eigenvectors(A-id_(CC^3))
+SVD(evec_{0}|v)
 A=transpose Rots#0 *Rots#1 + id_(CC^3)
+
+-*
+M=x y^t = [y1 x | y2 x | y3 x]
+      = 
+      
+M^t M = (x^t x) y y^t -> eig-vals = 1, 0, 0
+                      -> eigenvector for e-val 1: a y for some scalar a
+                          M^t M * a y = a (x^t x) y = 1 * y
+                                      => a = 1/(x^t x)
+I diag(*, 0, 0) [x ]^t
+
+*-
+
 first SVD A -- rots 0 and rots 2 differ by a reflection
 -- rk A = 1
+-- R0^t R1 + I = A(R0,t0) <-> R1 = R0 * ( A(R0, t0) - I) = R0 (2 R0 * R0^t
+-- d: (R, t) -> R 
 -*
 lets sample many problem instances and try to interpolate the deck transformation
 we just need to see how the rank-1 matrix A depends on the input data: m parameters and n unknowns, w/ (m, n) = (25, 12)

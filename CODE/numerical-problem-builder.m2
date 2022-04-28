@@ -248,7 +248,7 @@ m=3
 --D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D = (6,0,{{0,1,2,3,4},{0,5}}) -- 240 -- D.C.-ish, monodromy works
 --D = (4,1,{{0,1},{0,4}}) -- 264 -- ANGUILLA, monodromy works
---D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
+D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
 --D = (5,1,{{0,1,2,3},{0,5}}) -- 328 -- LOS ANGELES, monodromy works
 --D = (4,2,{{4,5}}) -- 360 -- SEATTLE-ish, monodromy works
 --D = (5,0,{{0,1,2},{0,3}}) -- 432 -- ODESSA1, monodromy works
@@ -278,7 +278,7 @@ m=3
 D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 COFACTOR = true
 JACOBIAN = true
-RERUNMONODROMY = true
+RUNMONODROMY = true
 needsPackage "NumericalAlgebraicGeometry"
 setDefault(tStepMin=>1e-7)
 setDefault(maxCorrSteps=>2)

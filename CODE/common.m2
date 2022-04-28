@@ -50,7 +50,7 @@ summary = L -> (
 -- random element in the kernel of M
 randKernel = method(Options=>{Tolerance=>1e-4})
 randKernel (Matrix, InexactFieldFamily) := o -> (M, FF) -> (
-    K := numericalKernel(M, o.Tolerance);
+    K := numericalKernel(M, Tolerance => o.Tolerance);
     K*random(FF^(numcols K), FF^1)
     )
 randKernel Matrix := o -> M -> randKernel(M, CC)
@@ -246,7 +246,7 @@ randomLineThroughPoints = (P, FF) -> (
     m := numrows P; -- m = dim + 1
     n := numcols P; -- n = number of points
     assert(m>=3 and m<=4);
-    K := numericalKernel(transpose P,1e-6);
+    K := numericalKernel(transpose P,Tolerance => 1e-6);
     --assert(numcols K == m-n); -- true if points are distinct
     transpose(K * random(FF^(numcols K),FF^(m-2)))
     )
@@ -317,7 +317,7 @@ encodey = (P,L,projs,FF) -> (
 	    	lineInds := first select(1,last D,i->member(l,i));
 		triplet := take(lineInds, 2) | {l};
 	    	rfold(allLines/(m -> (
-	    		n :=numericalKernel(transpose m^triplet, kTol);
+	    		n :=numericalKernel(transpose m^triplet, Tolerance => kTol);
 	    		(1/n_(2,0))*n^{0,1}
 			))
 	    	    )

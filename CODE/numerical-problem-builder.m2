@@ -184,12 +184,15 @@ elapsedTime GS=gateSystem(paramMatrix,varMatrix,F^Jpivots);
 (y, c) = fabricateyc CC
 filterRank(gammify y,c)
 if not instance(NEDGES,ZZ) then NEDGES=4
+if not instance(NNODES,ZZ) then NNODES=3
+if not instance(SATURATE,Boolean) then SATURATE = false
 if RERUNMONODROMY then elapsedTime (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify,
     EdgesSaturated => SATURATE,
-    NumberOfEdges=>NEDGES
+    NumberOfEdges=>NEDGES,
+    NumberOfNodes=>3
     );
 
 -- clear symbols for next run
@@ -252,7 +255,7 @@ D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D=(2,4,{{0,1},{0,2},{0,3},{1,4},{1,5}}) -- monodromy gets 12 -- saturation?
 --D=(3,2,{{0,1},{0,2},{2,0},{0,3},{0,4}}) -- fails rank check
 --D=(1,5,{{0,1},{0,2},{0,3},{0,4},{0,5}}) -- fails rank check
-
+restart
 m=3
 D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 COFACTOR = true
@@ -261,6 +264,7 @@ RERUNMONODROMY = true
 needsPackage "NumericalAlgebraicGeometry"
 setDefault(tStepMin=>1e-7)
 setDefault(maxCorrSteps=>2)
+errorDepth = 0
 needs "numerical-problem-builder.m2"
 -- code for generating various evaluators 
 PH = parametricSegmentHomotopy

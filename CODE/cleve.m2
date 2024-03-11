@@ -1,5 +1,5 @@
 -- run from PLMP/CODE/
--- neds M2 >= 1.14 (preferably 1.15)
+-- needs M2 >= 1.14 (preferably 1.15)
 restart
 setRandomSeed 0
 m=3 -- number of cameras 
@@ -22,11 +22,13 @@ needs "numerical-problem-builder.m2"
 -- y: image data consistent with c (plus charts on projective quantities)
 (y, c) = fabricateyc CC
 --running monodromy
+errorDepth = 0
 elapsedTime (V,np)=monodromySolve(GS, 
     y, {c},Verbose=>true,
     FilterCondition=>filterRank,
     Randomizer=>gammify,
-    NumberOfEdges=>NEDGES
+    NumberOfNodes=>NNODES,
+    NumberOfEdges=>NEDGES,
     );
 
 -- initial parameters

@@ -21,7 +21,7 @@ evaluate (GateMatrix, Matrix) := (G, x) -> (
 *-
 
 --random diagonal matrix
-randDiag = n -> diagonalMatrix for i from 1 to n list random CC
+randDiag = n -> diagonalMatrix for i from 1 to n list random FF
 
 dehomogenize = method(Options=>{})
 dehomogenize (Matrix, ZZ) := o -> (v, n) -> (
@@ -50,10 +50,10 @@ summary = L -> (
 -- random element in the kernel of M
 randKernel = method(Options=>{Tolerance=>1e-4})
 randKernel (Matrix, InexactFieldFamily) := o -> (M, FF) -> (
-    K := numericalKernel(M, o.Tolerance);
+    K := numericalKernel(M, Tolerance=>o.Tolerance);
     K*random(FF^(numcols K), FF^1)
     )
-randKernel Matrix := o -> M -> randKernel(M, CC)
+randKernel Matrix := o -> M -> randKernel(M, FF, oo)
 
 reshapeCol = p -> if (numrows p == 1) then transpose p else p
 reshapeRow = p -> if (numcols p == 1) then transpose p else p
@@ -63,7 +63,7 @@ reshapeRow = p -> if (numcols p == 1) then transpose p else p
 gammify = method()
 gammify Point := p -> gammify reshapeCol matrix p
 gammify Matrix := p -> (
-    gammas := for i from 1 to m*#indepLines list random CC;
+    gammas := for i from 1 to m*#indepLines list random FF;
     indDiag := flatten(gammas/(g->{g,g,g}));
     -- abstract to arbitrary diagram, number of cameras
     depWInd := depLines/(l->first select(1,last D,i->member(l,i)));
@@ -76,8 +76,8 @@ gammify Matrix := p -> (
 	    }
 	)
     );
-    tChartdiag := toList((3*(m-1)+1):random(CC)); -- t chart gamma
-    qChartDiags := flatten for i from 0 to m-2 list toList(5:random(CC));
+    tChartdiag := toList((3*(m-1)+1):random(FF)); -- t chart gamma
+    qChartDiags := flatten for i from 0 to m-2 list toList(5:random(FF));
     p' := diagonalMatrix(indDiag|depDiag|tChartdiag|qChartDiags)*p;
     p'
     )
@@ -113,7 +113,7 @@ readStartSys = filename -> (
 -- for testing the contents of a start system file
 startSysTester = (p,sols) -> (
     p0 := (transpose matrix V.BasePoint);
-    p1 := random(CC^(#dataParams),CC^1);
+    p1 := random(FF^(#dataParams),FF^1);
     P01 = p0||p1;
     Pspec01 := specialize(PH,P0);
     target01 := trackHomotopy(Pspec01, sols);
@@ -152,9 +152,9 @@ jacobian (GateMatrix, List) := (F,inGates) -> fold(apply(inGates,g->diff(g,F)),(
 -- get rotation matrix from cayley parameters
 cay2R = method(Options=>{Normalized=>false})
 cay2R (Thing,Thing,Thing) := o -> (X,Y,Z) -> (
-    if instance(X, RR) then x := X_CC else x = X;
-    if instance(Y, RR) then y := Y_CC else y = Y;
-    if instance(Z, RR) then z := Z_CC else z = Z;
+    if instance(X, RR) then x := X_FF else x = X;
+    if instance(Y, RR) then y := Y_FF else y = Y;
+    if instance(Z, RR) then z := Z_FF else z = Z;
     M := matrix{
     {1+x*x-(y*y+z*z), 2*(x*y-z), 2*(x*z+y)},
     {2*(x*y+z), 1+y^2-(x*x+z*z), 2*(y*z-x)},
@@ -169,7 +169,7 @@ R2Cay = method(Options=>{UnNormalize=>false})
 R2Cay Matrix := o -> R -> (
     assert(numcols R == 3);
     assert(numrows R == 3);
-    S := (R-id_(CC^3))*(R+id_(CC^3))^-1;
+    S := (R-id_(FF^3))*(R+id_(FF^3))^-1;
     (S_(2,1), S_(0,2), S_(1,0))
     )
 
@@ -184,12 +184,12 @@ R2Cay R
 ///*-
 
 -- get rotation matrix from quaternion parameters
-Q2R = method(Options=>{Normalized=>false, FF=>CC})
+Q2R = method(Options=>{Normalized=>false, FF=>FF})
 Q2R (Thing,Thing,Thing, Thing) := o -> (W, X,Y,Z) -> (
-    if instance(W, RR) then w := W_CC else w = W;
-    if instance(X, RR) then x := X_CC else x = X;
-    if instance(Y, RR) then y := Y_CC else y = Y;
-    if instance(Z, RR) then z := Z_CC else z = Z;
+    if instance(W, RR) then w := W_FF else w = W;
+    if instance(X, RR) then x := X_FF else x = X;
+    if instance(Y, RR) then y := Y_FF else y = Y;
+    if instance(Z, RR) then z := Z_FF else z = Z;
     M := matrix{
     {w*w+x*x-(y*y+z*z), 2*(x*y-w*z), 2*(x*z+w*y)},
     {2*(x*y+w*z), w^2+y^2-(x*x+z*z), 2*(y*z-w*x)},
@@ -200,7 +200,7 @@ Q2R (Thing,Thing,Thing, Thing) := o -> (W, X,Y,Z) -> (
 Q2R List := o -> L -> Q2R(L#0, L#1, L#2, L#3, o)
 
 -- get Cayley parameters from rotation matrix
-R2Q = method(Options=>{UnNormalize=>false,FF=>CC})
+R2Q = method(Options=>{UnNormalize=>false,FF=>FF})
 R2Q Matrix := o -> R -> (
     assert(numcols R == 3);
     assert(numrows R == 3);
@@ -216,7 +216,7 @@ R2Q Matrix := o -> R -> (
     )
 
 -*/// TEST
-R=CC[W]
+R=FF[W]
 netList solveSystem {W^4-W^2+1/16}
 
 clean T
@@ -246,7 +246,7 @@ randomLineThroughPoints = (P, FF) -> (
     m := numrows P; -- m = dim + 1
     n := numcols P; -- n = number of points
     assert(m>=3 and m<=4);
-    K := numericalKernel(transpose P,1e-6);
+    K := numericalKernel(transpose P,Tolerance=>1e-6);
     --assert(numcols K == m-n); -- true if points are distinct
     transpose(K * random(FF^(numcols K),FF^(m-2)))
     )
@@ -274,13 +274,13 @@ fabricatePair = (D, FF, nvars) -> (
 	    worldPointsFF = worldPointsFF | pointi
 	    )
 	);
-    worldPoints := sub(worldPointsFF,CC);    
-    helperPoints := apply(pointsOnLineIndices, pp->sub(random(FF^4,FF^(2-min(2,#pp))),CC));
+    worldPoints := sub(worldPointsFF,FF);    
+    helperPoints := apply(pointsOnLineIndices, pp->sub(random(FF^4,FF^(2-min(2,#pp))),FF));
     -- future (line below): may be interesting to sample space of variables differently depending on the field we fabricate data over
-    sampleCameraParameters := for i from 1 to nvars list sub(random FF,CC);
+    sampleCameraParameters := for i from 1 to nvars list sub(random FF,FF);
     subTable := apply(sampleCameraParameters, cameraVars, (a,b) -> b=>inputGate a);
     sampleC := apply(C,cam -> (
-	    M := mutableMatrix(CC, 3, 4);
+	    M := mutableMatrix(FF, 3, 4);
 	    evaluate(cam, mutableMatrix{sampleCameraParameters}, M);
 	    matrix M
 	    )
@@ -311,23 +311,23 @@ encodey = (P,L,projs,FF) -> (
 	    allLines/(m->m^(toList indepLines))
 	    );
     yInd := matrix(yIndLineMatrix,product toList size yIndLineMatrix,1);
-    yDep := if (#depLines == 0) then random(CC^0,CC^1) else 
+    yDep := if (#depLines == 0) then random(FF^0,FF^1) else 
     rfold(
 	depLines/(l-> (
 	    	lineInds := first select(1,last D,i->member(l,i));
 		triplet := take(lineInds, 2) | {l};
 	    	rfold(allLines/(m -> (
-	    		n :=numericalKernel(transpose m^triplet, kTol);
+	    		n :=numericalKernel(transpose m^triplet, Tolerance=>kTol);
 	    		(1/n_(2,0))*n^{0,1}
 			))
 	    	    )
 		)
     	    )
 	);
-    ytChart := sub(randKernel(transpose(c^{4*(m-1)..(4*(m-1)+3*(m-1)-1)}||matrix{{1_CC}}), FF),CC);
+    ytChart := sub(randKernel(transpose(c^{4*(m-1)..(4*(m-1)+3*(m-1)-1)}||matrix{{1_FF}}), FF),FF);
     yqChart := sub(rfold(
-	for i from 0 to m-2 list randKernel(transpose(c^{4*i..4*i+3}||matrix{{1_CC}}), FF)
-	),CC);
+	for i from 0 to m-2 list randKernel(transpose(c^{4*i..4*i+3}||matrix{{1_FF}}), FF)
+	),FF);
     yInd||yDep||ytChart||yqChart
     )
 
@@ -411,16 +411,16 @@ leverageScoreRowSelector = J0 -> (
 
 log10 = x -> log(x)/log(10)
 
-argCC = z -> atan((imaginaryPart z)/(realPart z))
+argFF = z -> atan((imaginaryPart z)/(realPart z))
 
 -- complex number whose real and imag parts are standard normal
-gaussCC = () -> (
+gaussFF = () -> (
     (u1,u2):=(random RR,random RR);
     sqrt(-2*log(u1))*cos(2*pi*u2)+ii*sqrt(-2*log(u1))*sin(2*pi*u2)
     )
 
 -- random sample drawn from normal distriution N(mu, var^2)
-rNorm = (mu,var) -> mu+var*(realPart gaussCC())_CC
+rNorm = (mu,var) -> mu+var*(realPart gaussFF())_FF
 
 -- random sample from (n-1)-sphere with radius r
 sphere = (n,r) -> (
@@ -442,15 +442,15 @@ randomOn = n -> diagonalMatrix(toList((n-1):1_RR)|{(-1)^(random 2)}) * fold(reve
 
 randomCameraNormalized = () -> (
     R := randomOn 3;
-    t := matrix{{random CC},{random CC},{random CC}};
+    t := matrix{{random FF},{random FF},{random FF}};
 --    t := transpose matrix{sphere(3,1)};
     tnorm := (1 / t_(2,0))* t;
     (R|tnorm)
     )
 
 randomCameraNormalizedCayley = () -> (
-    R := cay2R(random CC, random CC, random CC,Normalized=>true);
-    t := matrix{{random CC},{random CC},{random CC}};
+    R := cay2R(random FF, random FF, random FF,Normalized=>true);
+    t := matrix{{random FF},{random FF},{random FF}};
 --    t := transpose matrix{sphere(3,1)};
     tnorm := (1 / t_(2,0))* t;
     (R|tnorm)
@@ -467,13 +467,14 @@ ranks = method(Options=>{})
 ranks (Matrix, Matrix) := o -> (x, p) -> (
     if (numcols x > 1) then x = matrix(x, numcols x,1);
     if (numcols p > 1) then p = matrix(p, numcols p,1);
+    xpp := mutableMatrix sub(x||p,CC);
     a := PE/( m -> (
-	    evaluate(first m, mutableMatrix(x||p), last m);
+	    evaluate(first m, xpp, last m);
 	    numericalRank matrix last m
 	    )
 	    );
     b := LE/( m -> (
-	    evaluate(first m, mutableMatrix(x||p), last m);
+	    evaluate(first m, xpp, last m);
 	    numericalRank matrix last m
 	    )
 	    );

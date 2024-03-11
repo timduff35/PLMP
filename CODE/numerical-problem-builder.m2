@@ -61,10 +61,10 @@ paramMatrix = matrix{dataParams}
 inputMatrix = varMatrix | paramMatrix
 
 -- chart equations
-tChart = matrix{tchartParams}*transpose (matrix{centerVars}|matrix{{1_CC}})
+tChart = matrix{tchartParams}*transpose (matrix{centerVars}|matrix{{1_FF}})
 qCharts = rfold for i from 0 to m-2 list (
 	matrix{take(qchartParams,{5*i,5*i+4})}*
-    transpose (matrix{take(qVars,{4*i,4*i+3})}|matrix{{1_CC}})
+    transpose (matrix{take(qVars,{4*i,4*i+3})}|matrix{{1_FF}})
     )
 charts = tChart||qCharts
 
@@ -158,7 +158,7 @@ filterRankCoP = (p,x) -> (
     )
 
 --setRandomSeed 31452345342
-(y, c) = fabricateyc CC
+(y, c) = fabricateyc FF
 filterRank(y,c)
 varMatrix = gateMatrix{cameraVars}
 paramMatrix = gateMatrix{dataParams}
@@ -257,15 +257,22 @@ D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
 --D=(1,5,{{0,1},{0,2},{0,3},{0,4},{0,5}}) -- fails rank check
 restart
 m=3
-D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
+--D = (4,0,{{0,1},{0,2},{1,2}}) -- 216, CLEVELAND, monodromy works
+D = (5,0,{{0,1,3},{0,2,4},{1,2}}) -- 312 -- CHICAGO, monodromy works
 COFACTOR = true
 JACOBIAN = true
 RERUNMONODROMY = true
 needsPackage "NumericalAlgebraicGeometry"
 setDefault(tStepMin=>1e-7)
 setDefault(maxCorrSteps=>2)
-errorDepth = 0
+--errorDepth = 0
 needs "numerical-problem-builder.m2"
+FF = RR
+GS0 = gateSystem(vars GS, sub(gateMatrix GS, parameters GS, gateMatrix{toList apply(1..numParameters GS, i -> random FF)}));
+RNG = FF[YY_1..YY_14]
+evaluate(GS0, vars RNG)
+debug MonodromySolver
+expand GS0
 -- code for generating various evaluators 
 PH = parametricSegmentHomotopy
 -- HxHt

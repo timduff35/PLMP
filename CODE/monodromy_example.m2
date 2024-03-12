@@ -77,4 +77,4 @@ concatenate ts
 -- post-process the output of monodromySolver
 
 
-writePermutations(V, "example" | ".txt")
+writePermutationsPLMP(V, "example" | ".txt")

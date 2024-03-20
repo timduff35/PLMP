@@ -168,14 +168,7 @@ norm evaluate(masterGS,y,c) -- ~0?
 
 -- this block is very hacky!
 if (instance(Jpivots, Symbol) and JACOBIAN) then (
-    -- better to have this precomputed
-    << "differentiating" << endl;
-    elapsedTime J = diff(varMatrix,F);
-    (M,N) = size J;
-    elapsedTime JGS = gateSystem(paramMatrix, varMatrix, transpose matrix{flatten entries J});
-    elapsedTime J0 = matrix(transpose evaluate(JGS,y,c),M,N);
-    elapsedTime Jpivots = rowSelector(J0,Threshold=>1e-6);
-    elapsedTime S = first SVD J0^Jpivots;
+    elapsedTime Jpivots = rowSelector(y, c, masterGS);
     << "pivot indices are " << toString Jpivots << endl;
     )
 

@@ -28,7 +28,7 @@ elapsedTime (V,np)=monodromySolve(GS,
     FilterCondition=>filterRank,
     Randomizer=>gammify,
     NumberOfNodes=>NNODES,
-    NumberOfEdges=>NEDGES,
+    NumberOfEdges=>NEDGES
     );
 
 -- initial parameters
